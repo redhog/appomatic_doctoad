@@ -1,0 +1,25 @@
+{% extends 'appomatic_doctoad/base.html' %}
+{% load doctoad %}
+
+{% block menu %}
+  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Files</a></li>
+  {% if request.GET.treeish and request.GET.treeish != 'master' %}
+    <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">Differences</a></li>
+  {% endif %}
+  <li class="active"><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">Log</a></li>
+{% endblock %}
+
+{% block content_title %}<h1>Change: {{request.GET.treeish}}</h1>{% endblock %}
+{% block content %}
+
+  {% for commit in repo.log %}
+     <h2><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{commit.id}}">{{commit.comment}}</a></h2>
+     <div>Author: {{commit.author}}</div>
+     <div>Date: {{commit.date}}</div>
+     {% for filename, content in commit.files.items %}
+       <h3>{{filename}}</h3>
+       <div class="viewable">{{content}}</div>
+     {% endfor %}
+   {% endfor %}
+
+{% endblock %}

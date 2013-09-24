@@ -1,0 +1,13 @@
+{% extends 'appomatic_doctoad/base.html' %}
+{% load doctoad %}
+
+{% block content_title %}<h1>{{request.GET.file}}</h1>{% endblock %}
+{% block content %}
+  <form method="POST">
+    {% csrf_token %}
+    Change description: <input type="text" name="description"> <button type="submit" value="save">Save changes</button>
+    <textarea id="document_source" name="source" style="display: none;">{{repo|method:"cat_file"|arg:request.GET.file|call|safe}}</textarea>
+  </form>
+  <br><br><br>
+  <div id="document" class="editable"></div>
+{% endblock %}
