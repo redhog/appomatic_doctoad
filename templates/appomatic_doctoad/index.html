@@ -1,41 +1,44 @@
 {% extends 'appomatic_doctoad/base.html' %}
 
 {% block menu %}
-  <li class="active"><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Files</a></li>
+  <li class="active"><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Documents</a></li>
   {% if request.GET.treeish and request.GET.treeish != 'master' %}
     <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">Differences</a></li>
   {% endif %}
   <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">Log</a></li>
 {% endblock %}
 
-{% block content_title %}{% endblock %}
 {% block content %}
 
   <div class="row">
     <div class="col-md-8">
-      {% if request.GET.treeish and request.GET.treeish != 'master' %}
-        <h1>{{request.GET.treeish}}</h1>
-      {% endif %}
-      <h2>Files</h2>
-      <ul>
-        {% for file in repo.ls_files %}
-          <li><a href="{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}&file={{file}}">{{file}}</a></li>
-        {% endfor %}
-        <li>
-          <form method="GET" action="{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}">
-            Create new: <input type="text" name="file"> <button type="submit" class="btn btn-default">Add</button>
-          </form>
-        </li>
-      </ul>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Documents
+          <a class="pull-right popover-trigger" title="Create new document:" data-content="
+            <form style='white-space: nowrap;' class='form-inline' method='GET' action='{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}'>
+              <div class='form-group'><input class='form-control' type='text' name='file'></div>
+              <div class='form-group'><button type='submit' class='btn btn-default'>Add</button></div>
+            </form>
+          " href="javascript: void(0);"><i class="icon-plus"></i></a>
+        </div>
+        <div class="list-group">
+          {% for file in repo.ls_files %}
+            <a class="list-group-item" href="{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}&file={{file}}">{{file}}</a>
+          {% endfor %}
+        </div>
+      </div>
     </div>
     <div class="col-md-4">
       {% if not request.GET.treeish or request.GET.treeish == 'master' %}
-        <h1>Open change requests</h1>
-        <ul>
-          {% for treeish in repo.branches.open %}
-            <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{treeish}}">{{treeish}}</a></li>
-          {% endfor %}
-        </ul>
+        <div class="panel panel-default">
+          <div class="panel-heading">Open change requests</div>
+          <div class="list-group">
+            {% for treeish in repo.branches.open %}
+              <a class="list-group-item" href="{% url 'appomatic_doctoad.views.change' %}?treeish={{treeish}}">{{treeish}}</a>
+            {% endfor %}
+          </div>
+        </div>
       {% endif %}
     </div>
   </div>

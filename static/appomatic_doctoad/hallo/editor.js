@@ -90,4 +90,6 @@ jQuery(document).ready(function() {
     var viewable = $(this);
     viewable.html(htmlize(viewable.html()));
   });
+
+    $(".popover-trigger").popover({html:true, placement: "bottom"});
 }); 

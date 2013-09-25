@@ -2,25 +2,14 @@
 {% load doctoad %}
 
 {% block menu %}
-  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Files</a></li>
+  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Documents</a></li>
   <li class="active"><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">Differences</a></li>
   <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">Log</a></li>
 {% endblock %}
 
-{% block content_title %}<h1>Change: {{request.GET.treeish}}</h1>{% endblock %}
 {% block content %}
-  {% if repo.mergeable %}
-    <a class="btn btn-success" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}">Apply change</a> 
-  {% else %}
-    <div class="alert alert-danger">This change can not be applied as it is, as other changes that clashes with it have already been applied.</div>
-    <a class="btn btn-success" href="{% url 'appomatic_doctoad.views.fix' %}?treeish={{request.GET.treeish}}">Fix the change</a>
-  {% endif %}
-
   {% for filename, content in repo.diff.items %}
-    <h2>{{filename}}</h2>
-    <a class="btn btn-default" href="{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}&file={{filename}}">Edit</a>
-    <br>
-    <br>
+    <h2><a href="{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}&file={{filename}}">{{filename}} <i class="icon-edit"></i></a></h2>
     <div class="viewable">{{content}}</div>
   {% endfor %}
 

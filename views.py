@@ -50,7 +50,7 @@ class RepoView(object):
         subprocess.check_output(["git", "commit", "-m", msg], cwd=self.repo.root)
         
     def diff(self):
-        output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", "master.." + self.treeish], cwd=self.repo.root)
+        output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", "master..." + self.treeish], cwd=self.repo.root)
         result = {}
         for file in output.split("diff --git ")[1:]:
             filename = file.split(" b/")[0][2:]

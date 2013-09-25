@@ -1,13 +1,25 @@
 {% extends 'appomatic_doctoad/base.html' %}
 {% load doctoad %}
 
-{% block content_title %}<h1>{{request.GET.file}}</h1>{% endblock %}
+{% block btnsuccess1 %}btn-default{% endblock %}
+
+{% block menu %}
+  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Documents</a></li>
+  {% if request.GET.treeish and request.GET.treeish != 'master' %}
+    <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">Differences</a></li>
+  {% endif %}
+  <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">Log</a></li>
+  <li class="active"><a href="#">{{request.GET.file}}</a></li>
+{% endblock %}
+
 {% block content %}
-  <form method="POST">
+  <form method="POST" class="form-inline" role="form">
     {% csrf_token %}
-    Change description: <input type="text" name="description"> <button type="submit" value="save">Save changes</button>
+    <div class="form-group">Change name:</div>
+    <div class="form-group"><input type="text" name="description" class="form-control"></div>
+    <button class="btn {% block btnsuccess2 %}btn-success{% endblock %} pull-right" type="submit" value="save"><i class="icon-save"></i> Save changes</button>
     <textarea id="document_source" name="source" style="display: none;">{{repo|method:"cat_file"|arg:request.GET.file|call|safe}}</textarea>
   </form>
-  <br><br><br>
+  <br><br>
   <div id="document" class="editable"></div>
 {% endblock %}

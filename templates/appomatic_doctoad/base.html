@@ -32,16 +32,32 @@
 <body id="{% block body_id %}{% endblock %}" class="{% block body_class %}{% endblock %}">
   <div id="body">
     {% block body %}
-      <nav class="navbar navbar-default" role="navigation">
-        <ul class="nav navbar-nav">
-          <li><a href="{% url 'appomatic_doctoad.views.index' %}">Home</a></li>
-          {% block menu %}
-          {% endblock %}
-        </ul>
-      </nav>
+      {% if request.GET.treeish and request.GET.treeish != 'master' %}
+        <a class="btn btn-default" href="{% url 'appomatic_doctoad.views.index' %}"><i class="icon-undo"></i> Back to current version</a>
+        <br>
+        <br>
+      {% endif %}
       <div class="content_title">
-        {% block content_title %}{% endblock %}
+        {% block content_title %}
+          {% if request.GET.treeish and request.GET.treeish != 'master' %}
+            {% if repo.mergeable %}
+              <a class="btn {% block btnsuccess1 %}btn-success{% endblock %} pull-right" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> Apply change</a> 
+            {% endif %}
+            <h1>Change: {{request.GET.treeish}}</h1>
+            {% if not repo.mergeable %}
+              <div class="alert alert-danger">
+                 <p>This change can not be applied as it is, as other changes that clashes with it have already been applied.</p>
+                 <p><a class="btn btn-danger" href="{% url 'appomatic_doctoad.views.fix' %}?treeish={{request.GET.treeish}}"><i class="icon-edit"></i> Fix the change</a></p>
+              </div>
+            {% endif %}
+            <br>
+          {% endif %}
+        {% endblock %}
       </div>
+      <ul class="nav nav-tabs">
+        {% block menu %}{% endblock %}
+      </ul>
+      <br>
       <div class="content_outer">
         {% block content_outer %}
           <div class="content">
