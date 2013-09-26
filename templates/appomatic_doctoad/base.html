@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
 
@@ -33,7 +34,7 @@
   <div id="body">
     {% block body %}
       {% if request.GET.treeish and request.GET.treeish != 'master' %}
-        <a class="btn btn-default" href="{% url 'appomatic_doctoad.views.index' %}"><i class="icon-undo"></i> Back to current version</a>
+        <a class="btn btn-default" href="{% url 'appomatic_doctoad.views.index' %}"><i class="icon-undo"></i> {% blocktrans %}Back to current version{% endblocktrans %}</a>
         <br>
         <br>
       {% endif %}
@@ -41,13 +42,13 @@
         {% block content_title %}
           {% if request.GET.treeish and request.GET.treeish != 'master' %}
             {% if repo.mergeable %}
-              <a class="btn {% block btnsuccess1 %}btn-success{% endblock %} pull-right" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> Apply change</a> 
+              <a class="btn {% block btnsuccess1 %}btn-success{% endblock %} pull-right" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> {% blocktrans %}Apply change{% endblocktrans %}</a>
             {% endif %}
-            <h1>Change: {{request.GET.treeish}}</h1>
+            <h1>{% blocktrans with treeish=request.GET.treeish %}Change: {{treeish}}{% endblocktrans %}</h1>
             {% if not repo.mergeable %}
               <div class="alert alert-danger">
-                 <p>This change can not be applied as it is, as other changes that clashes with it have already been applied.</p>
-                 <p><a class="btn btn-danger" href="{% url 'appomatic_doctoad.views.fix' %}?treeish={{request.GET.treeish}}"><i class="icon-edit"></i> Fix the change</a></p>
+                 <p>{% blocktrans %}This change can not be applied as it is, as other changes that clashes with it have already been applied.{% endblocktrans %}</p>
+                 <p><a class="btn btn-danger" href="{% url 'appomatic_doctoad.views.fix' %}?treeish={{request.GET.treeish}}"><i class="icon-edit"></i> {% blocktrans %}Fix the change{% endblocktrans %}</a></p>
               </div>
             {% endif %}
             <br>

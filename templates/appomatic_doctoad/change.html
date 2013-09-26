@@ -1,10 +1,11 @@
 {% extends 'appomatic_doctoad/base.html' %}
+{% load i18n %}
 {% load doctoad %}
 
 {% block menu %}
-  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Documents</a></li>
-  <li class="active"><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">Differences</a></li>
-  <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">Log</a></li>
+  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Documents{% endblocktrans %}</a></li>
+  <li class="active"><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Differences{% endblocktrans %}</a></li>
+  <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Log{% endblocktrans %}</a></li>
 {% endblock %}
 
 {% block content %}

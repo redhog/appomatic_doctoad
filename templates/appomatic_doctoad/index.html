@@ -1,11 +1,12 @@
 {% extends 'appomatic_doctoad/base.html' %}
+{% load i18n %}
 
 {% block menu %}
-  <li class="active"><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">Documents</a></li>
+  <li class="active"><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Documents{% endblocktrans %}</a></li>
   {% if request.GET.treeish and request.GET.treeish != 'master' %}
-    <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">Differences</a></li>
+    <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Differences{% endblocktrans %}</a></li>
   {% endif %}
-  <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">Log</a></li>
+  <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Log{% endblocktrans %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -14,11 +15,11 @@
     <div class="col-md-8">
       <div class="panel panel-default">
         <div class="panel-heading">
-          Documents
-          <a class="pull-right popover-trigger" title="Create new document:" data-content="
+          {% blocktrans %}Documents{% endblocktrans %}
+          <a class="pull-right popover-trigger" title="{% blocktrans %}Create new document:{% endblocktrans %}" data-content="
             <form style='white-space: nowrap;' class='form-inline' method='GET' action='{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}'>
               <div class='form-group'><input class='form-control' type='text' name='file'></div>
-              <div class='form-group'><button type='submit' class='btn btn-default'>Add</button></div>
+              <div class='form-group'><button type='submit' class='btn btn-default'>{% blocktrans %}Add{% endblocktrans %}</button></div>
             </form>
           " href="javascript: void(0);"><i class="icon-plus"></i></a>
         </div>
@@ -32,7 +33,7 @@
     <div class="col-md-4">
       {% if not request.GET.treeish or request.GET.treeish == 'master' %}
         <div class="panel panel-default">
-          <div class="panel-heading">Open change requests</div>
+          <div class="panel-heading">{% blocktrans %}Open change requests{% endblocktrans %}</div>
           <div class="list-group">
             {% for treeish in repo.branches.open %}
               <a class="list-group-item" href="{% url 'appomatic_doctoad.views.change' %}?treeish={{treeish}}">{{treeish}}</a>
