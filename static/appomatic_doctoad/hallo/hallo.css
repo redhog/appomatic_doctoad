@@ -142,3 +142,6 @@ footer p {
 .version-two {
   border-left: 4px solid #ff00ff;
 }
+.popover {
+  max-width: none;
+}
