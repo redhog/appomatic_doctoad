@@ -41,6 +41,7 @@
       <div class="content_title">
         {% block content_title %}
           {% if request.GET.treeish and request.GET.treeish != 'master' %}
+            <a class="btn btn-danger pull-right" href="{% url 'appomatic_doctoad.views.close' %}?treeish={{request.GET.treeish}}"><i class="icon-close"></i> {% blocktrans %}Dismiss change{% endblocktrans %}</a>
             {% if not repo.clashing_files %}
               <a class="btn {% block btnsuccess1 %}btn-success{% endblock %} pull-right" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> {% blocktrans %}Apply change{% endblocktrans %}</a>
             {% endif %}

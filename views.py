@@ -167,6 +167,12 @@ def merge(request):
         view.merge(treeish)
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index") + "?treeish=" + intotreeish)
 
+def close(request):
+    intotreeish = request.GET.get("intotreeish", "master")
+    with RepoView(repo, request.GET["treeish"]) as view:
+        view.close()
+        return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index"))
+
 def fix(request):
     with RepoView(repo, request.GET.get("treeish", None) or "master") as view:
         if request.method == "POST":

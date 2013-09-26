@@ -7,5 +7,6 @@ urlpatterns = patterns('',
     (r'^doctoad/change/?$', 'appomatic_doctoad.views.change'),
     (r'^doctoad/log/?$', 'appomatic_doctoad.views.log'),
     (r'^doctoad/merge/?$', 'appomatic_doctoad.views.merge'),
+    (r'^doctoad/close/?$', 'appomatic_doctoad.views.close'),
     (r'^doctoad/fix/?$', 'appomatic_doctoad.views.fix'),
 )
