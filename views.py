@@ -28,9 +28,13 @@ class RepoView(object):
         return
 
     def ls_files(self):
-        return subprocess.check_output(["git", "ls-files"], cwd=self.repo.root).strip().split("\n")
+        return [filename.rsplit(".", 1)[0]
+                for filename
+                in subprocess.check_output(["git", "ls-files"], cwd=self.repo.root).strip().split("\n")
+                if filename.endswith(".md")]
 
     def cat_file(self, filename):
+        filename = filename + ".md"
         filepath = os.path.join(self.repo.root, filename)
         if not os.path.exists(filepath):
             return 'Nothing here yet :)'
@@ -42,6 +46,7 @@ class RepoView(object):
         subprocess.check_output(["git", "checkout", name], cwd=self.repo.root)
 
     def save(self, filename, content):
+        filename = filename + ".md"
         with open(os.path.join(self.repo.root, filename), "w") as f:
             f.write(content.encode("utf-8"))
         subprocess.check_output(["git", "add", filename], cwd=self.repo.root)
@@ -53,7 +58,7 @@ class RepoView(object):
         output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", "master..." + self.treeish], cwd=self.repo.root)
         result = {}
         for file in output.split("diff --git ")[1:]:
-            filename = file.split(" b/")[0][2:]
+            filename = file.split(" b/")[0][2:].rsplit(".", 1)[0]
             content = re.split(r"@@.*@@", file)[1]
             result[filename] = content
         return result
@@ -74,7 +79,7 @@ class RepoView(object):
             resultcommit = {'id': id, 'files': {}, 'author': author.strip(), 'comment': comment.strip(), 'date': date.strip()}
             result.append(resultcommit)
             for file in commit.split("diff --git ")[1:]:
-                filename = file.split(" b/")[0][2:]
+                filename = file.split(" b/")[0][2:].rsplit(".", 1)[0]
                 content = re.split(r"@@.*@@", file)[1]
                 resultcommit['files'][filename] = content
         return result
