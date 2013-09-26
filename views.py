@@ -41,9 +41,20 @@ class RepoView(object):
         with open(filepath) as f:
             return f.read()
 
-    def branch(self, name):
-        subprocess.check_output(["git", "branch", name], cwd=self.repo.root)
-        subprocess.check_output(["git", "checkout", name], cwd=self.repo.root)
+    def branch(self, name, handle_duplicates = True):
+        branch = name
+        counter = 1
+        while True:
+            try:
+                subprocess.check_output(["git", "branch", branch], cwd=self.repo.root)
+                subprocess.check_output(["git", "checkout", branch], cwd=self.repo.root)
+            except:
+                if not handle_duplicates:
+                    raise
+                branch = "%s-%s" % (name, counter)
+                counter += 1
+            else:
+                return branch
 
     def save(self, filename, content):
         filename = filename + ".md"
@@ -103,10 +114,10 @@ class RepoView(object):
             if branch.startswith("*"):
                 return branch[1:].strip()
 
-    def mergeable(self, intotreeish = "master"):
+    def clashing_files(self, intotreeish = "master"):
         base = subprocess.check_output(["git", "merge-base", self.treeish, intotreeish], cwd=self.repo.root).strip()
         result = subprocess.check_output(["git", "merge-tree", base, self.treeish, intotreeish], cwd=self.repo.root).strip()
-        return '<<<<<<<' not in result
+        return re.findall(r"changed in both\n *base *[0-9]* [0-9a-f]* (.*).md", result)
 
     def merge(self, fromtreeish):
         subprocess.check_output(["git", "merge", fromtreeish], cwd=self.repo.root)
@@ -116,52 +127,38 @@ class RepoView(object):
             # If it's not a branch, just ignore...
             pass
 
-    def fix(self, intotreeish = "master"):
-        current = self.current_branch()
-        fixed = current + "-fix"
-        subprocess.check_output(["git", "branch", fixed], cwd=self.repo.root)
-        subprocess.check_output(["git", "checkout", fixed], cwd=self.repo.root)
+    def update(self, fromtreeish = "master"):
         try:
-            subprocess.check_output(["git", "merge", intotreeish], cwd=self.repo.root)
+            subprocess.check_output(["git", "merge", fromtreeish], cwd=self.repo.root)
+            return True
         except:
-            # Yes, this will fail... of course it will fail
-            pass
-        subprocess.check_output(["git", "add", "."], cwd=self.repo.root)
-        subprocess.check_output(["git", "commit", "-m", "Merging master to allow fix"], cwd=self.repo.root)
-        subprocess.check_output(["git", "branch", "-m", current, "closed-" + current], cwd=self.repo.root)
-        return fixed
+            return False
+
+    def close(self):
+        subprocess.check_output(["git", "branch", "-m", self.treeish, "closed-" + self.treeish], cwd=self.repo.root)
 
 repo = Repo()
 
 def index(request):
     with RepoView(repo, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/index.html", {'request': request, 'repo': view})
+        return django.shortcuts.render(request, "appomatic_doctoad/index.html", {'request': request, 'repo': view, 'view': 'index'})
 
 def file(request):
     with RepoView(repo, request.GET.get("treeish", None) or "master") as view:
         if request.method == "POST":
-            base = branch = django.template.defaultfilters.slugify(request.POST["description"])
-            counter = 1
-            while True:
-                try:
-                    view.branch(branch)
-                except:
-                    branch = "%s-%s" % (base, counter)
-                    counter += 1
-                else:
-                    break
+            branch = view.branch(django.template.defaultfilters.slugify(request.POST["description"]))
             view.save(request.GET["file"], request.POST["source"])
             view.commit(request.POST["description"])
             return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.change") + "?treeish=" + branch)
-        return django.shortcuts.render(request, "appomatic_doctoad/file.html", {'request': request, 'repo': view})
+        return django.shortcuts.render(request, "appomatic_doctoad/file.html", {'request': request, 'repo': view, 'view': 'file'})
 
 def change(request):
     with RepoView(repo, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/change.html", {'request': request, 'repo': view})
+        return django.shortcuts.render(request, "appomatic_doctoad/change.html", {'request': request, 'repo': view, 'view': 'change'})
 
 def log(request):
     with RepoView(repo, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/log.html", {'request': request, 'repo': view})
+        return django.shortcuts.render(request, "appomatic_doctoad/log.html", {'request': request, 'repo': view, 'view': 'log'})
 
 def merge(request):
     treeish = request.GET["treeish"]
@@ -171,8 +168,18 @@ def merge(request):
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index") + "?treeish=" + intotreeish)
 
 def fix(request):
-    treeish = request.GET["treeish"]
-    intotreeish = request.GET.get("intotreeish", "master")
-    with RepoView(repo, treeish) as view:
-        fixed = view.fix(intotreeish)
-        return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.change") + "?treeish=" + fixed)
+    with RepoView(repo, request.GET.get("treeish", None) or "master") as view:
+        if request.method == "POST":
+            view.close()
+            branch = view.branch(django.template.defaultfilters.slugify(request.POST["description"]))
+            view.update(request.GET.get("intotreeish", "master"))
+            for name in request.POST.iterkeys():
+                if name.endswith("_source"):
+                    content = request.POST[name]
+                    filename = request.POST[name.rsplit("_", 1)[0] + "_name"]
+                    view.save(filename, content)
+            view.commit(request.POST["description"])
+            return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.change") + "?treeish=" + branch)
+        else:
+            view.update(request.GET.get("intotreeish", "master"))
+            return django.shortcuts.render(request, "appomatic_doctoad/fix.html", {'request': request, 'repo': view, 'view': 'fix'})

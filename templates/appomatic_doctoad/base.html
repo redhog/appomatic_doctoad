@@ -41,11 +41,11 @@
       <div class="content_title">
         {% block content_title %}
           {% if request.GET.treeish and request.GET.treeish != 'master' %}
-            {% if repo.mergeable %}
+            {% if not repo.clashing_files %}
               <a class="btn {% block btnsuccess1 %}btn-success{% endblock %} pull-right" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> {% blocktrans %}Apply change{% endblocktrans %}</a>
             {% endif %}
             <h1>{% blocktrans with treeish=request.GET.treeish %}Change: {{treeish}}{% endblocktrans %}</h1>
-            {% if not repo.mergeable %}
+            {% if repo.clashing_files and not view == 'fix' %}
               <div class="alert alert-danger">
                  <p>{% blocktrans %}This change can not be applied as it is, as other changes that clashes with it have already been applied.{% endblocktrans %}</p>
                  <p><a class="btn btn-danger" href="{% url 'appomatic_doctoad.views.fix' %}?treeish={{request.GET.treeish}}"><i class="icon-edit"></i> {% blocktrans %}Fix the change{% endblocktrans %}</a></p>
