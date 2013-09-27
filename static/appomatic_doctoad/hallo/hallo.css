@@ -127,7 +127,7 @@ footer p {
 
 .added {
   color: green;
-  text-decoration: underline;
+  border-bottom: 1px dashed;
 }
 
 .removed {
