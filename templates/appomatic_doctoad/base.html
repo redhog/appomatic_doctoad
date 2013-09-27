@@ -33,11 +33,20 @@
 <body id="{% block body_id %}{% endblock %}" class="{% block body_class %}{% endblock %}">
   <div id="body">
     {% block body %}
+      {% for message in messages %}
+         <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+
+      {% if user.is_authenticated %}
+        <a class="btn btn-default pull-right" href="{% url 'appomatic_doctoad.views.logout' %}"><i class="icon-signout"></i> {% blocktrans %}Log out{% endblocktrans %}</a>
+      {% endif %}
+
       {% if request.GET.treeish and request.GET.treeish != 'master' %}
         <a class="btn btn-default" href="{% url 'appomatic_doctoad.views.index' %}"><i class="icon-undo"></i> {% blocktrans %}Back to current version{% endblocktrans %}</a>
         <br>
         <br>
       {% endif %}
+
       <div class="content_title">
         {% block content_title %}
           {% if request.GET.treeish and request.GET.treeish != 'master' %}
@@ -60,10 +69,12 @@
           {% endif %}
         {% endblock %}
       </div>
+
       <ul class="nav nav-tabs">
         {% block menu %}{% endblock %}
       </ul>
       <br>
+
       <div class="content_outer">
         {% block content_outer %}
           <div class="content">

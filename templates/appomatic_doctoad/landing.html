@@ -1,0 +1,34 @@
+{% extends 'appomatic_doctoad/base.html' %}
+{% load i18n %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-4">
+      {% blocktrans %}
+        <h1>Welcome to DocToad!</h1>
+        <p>DocToad is a tool to manage changes to documents inside an
+        organisation, before, under and after a general assembly.</p>
+      {% endblocktrans %}
+
+      <form role="form" method="POST">
+        {% csrf_token %}
+        <div class="form-group"><input type='text' name='name' class='form-control' placeholder="{% blocktrans %}Your name{% endblocktrans %}"></div>
+        <div class="form-group"><input type='text' name='email' class='form-control' placeholder="{% blocktrans %}Email{% endblocktrans %}"></div>
+        <button class='btn btn-success' type='submit' name="action-use" value='use'><i class='icon-signin'></i> {% blocktrans %}Start using DocToad{% endblocktrans %}</button>
+      </form>
+      <br>
+      <a class="btn btn-default popover-trigger" title="{% blocktrans %}Log in as an administrator:{% endblocktrans %}" data-content="
+        <form role='form' method='POST'>
+          {% csrf_token %}
+          <div class='form-group'><input type='text' name='username' class='form-control' placeholder='{% blocktrans %}Username{% endblocktrans %}'></div></div>
+          <div class='form-group'><input type='password' name='password' class='form-control' placeholder='{% blocktrans %}Password{% endblocktrans %}'></div></div>
+          <button class='btn btn-success' type='submit' name='action-login' value='login'><i class='icon-signin'></i> {% blocktrans %}Login{% endblocktrans %}</button>
+      " href="javascript: void(0);"><i class="icon-bolt"></i> {% blocktrans %}I'm an admin{% endblocktrans %}</a>    
+    </div>
+    <div class="col-md-8">
+      <a href="{% url 'appomatic_doctoad.views.index' %}" title="{% blocktrans %}Click the toad to start working with the documents{% endblocktrans %}">
+        <img src="http://piratepad.net/front-page/Piratepad.png">
+      </a>
+    </div>
+  </div>
+{% endblock %}

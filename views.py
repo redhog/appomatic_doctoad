@@ -4,6 +4,8 @@ import subprocess
 import django.shortcuts
 import django.template.defaultfilters
 import django.core.urlresolvers
+import django.contrib.auth
+import django.contrib.messages
 import re
 import django.contrib.auth.decorators
 from django.conf import settings
@@ -15,13 +17,27 @@ class Repo(object):
         self.lock = threading.Lock()
 
 class RepoView(object):
-    def __init__(self, repo, treeish = None):
+    def __init__(self, repo, request, treeish = None):
         self.repo = repo
+        self.request = request
         self.treeish = treeish or 'master'
 
     def __enter__(self):
         self.repo.lock.acquire()
+
+        name = email = ""
+        if self.request.user.is_authenticated():
+            name, email = self.request.user.get_full_name(), self.request.user.email
+        elif 'doctoad_name' in self.request.session:
+            name, email = self.request.session["doctoad_name"], self.request.session["doctoad_email"]
+        if not name.strip(): name = "Anonymous"
+        if not email.strip(): email = "anonymous@inter.net"
+
+        subprocess.check_output(["git", "config", "user.name", name], cwd=self.repo.root)
+        subprocess.check_output(["git", "config", "user.email", email], cwd=self.repo.root)
+
         subprocess.check_output(["git", "checkout", "-f", self.treeish], cwd=self.repo.root)
+
         return self
 
     def __exit__(self, type, value, traceback):
@@ -140,12 +156,26 @@ class RepoView(object):
 
 repo = Repo()
 
+def landing(request):
+    if request.method == "POST":
+        if 'action-use' in request.POST:
+            request.session["doctoad_name"] = request.POST["name"]
+            request.session["doctoad_email"] = request.POST["email"]
+            return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index"))
+        elif 'action-login' in request.POST:
+            user = django.contrib.auth.authenticate(username=request.POST['username'], password=request.POST['password'])
+            if user is not None and user.is_active:
+                django.contrib.auth.login(request, user)
+                return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index"))
+            django.contrib.messages.error(request, 'Bad username or password.')
+    return django.shortcuts.render(request, "appomatic_doctoad/landing.html", {'request': request, 'view': 'landing'})
+
 def index(request):
-    with RepoView(repo, request.GET.get("treeish", "master")) as view:
+    with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
         return django.shortcuts.render(request, "appomatic_doctoad/index.html", {'request': request, 'repo': view, 'view': 'index'})
 
 def file(request):
-    with RepoView(repo, request.GET.get("treeish", None) or "master") as view:
+    with RepoView(repo, request, request.GET.get("treeish", None) or "master") as view:
         if request.method == "POST":
             branch = view.branch(django.template.defaultfilters.slugify(request.POST["description"]))
             view.save(request.GET["file"], request.POST["source"])
@@ -154,30 +184,30 @@ def file(request):
         return django.shortcuts.render(request, "appomatic_doctoad/file.html", {'request': request, 'repo': view, 'view': 'file'})
 
 def change(request):
-    with RepoView(repo, request.GET.get("treeish", "master")) as view:
+    with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
         return django.shortcuts.render(request, "appomatic_doctoad/change.html", {'request': request, 'repo': view, 'view': 'change'})
 
 def log(request):
-    with RepoView(repo, request.GET.get("treeish", "master")) as view:
+    with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
         return django.shortcuts.render(request, "appomatic_doctoad/log.html", {'request': request, 'repo': view, 'view': 'log'})
 
 @django.contrib.auth.decorators.permission_required('appomatic_doctoad.merge')
 def merge(request):
     treeish = request.GET["treeish"]
     intotreeish = request.GET.get("intotreeish", "master")
-    with RepoView(repo, intotreeish) as view:
+    with RepoView(repo, request, intotreeish) as view:
         view.merge(treeish)
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index") + "?treeish=" + intotreeish)
 
 @django.contrib.auth.decorators.permission_required('appomatic_doctoad.close')
 def close(request):
     intotreeish = request.GET.get("intotreeish", "master")
-    with RepoView(repo, request.GET["treeish"]) as view:
+    with RepoView(repo, request, request.GET["treeish"]) as view:
         view.close()
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index"))
 
 def fix(request):
-    with RepoView(repo, request.GET.get("treeish", None) or "master") as view:
+    with RepoView(repo, request, request.GET.get("treeish", None) or "master") as view:
         if request.method == "POST":
             view.close()
             branch = view.branch(django.template.defaultfilters.slugify(request.POST["description"]))
@@ -192,3 +222,7 @@ def fix(request):
         else:
             view.update(request.GET.get("intotreeish", "master"))
             return django.shortcuts.render(request, "appomatic_doctoad/fix.html", {'request': request, 'repo': view, 'view': 'fix'})
+
+def logout(request):
+    django.contrib.auth.logout(request)
+    return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.landing"))
