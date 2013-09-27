@@ -51,8 +51,11 @@ jQuery(document).ready(function() {
       'hallolists': {},
       'halloreundo': {}
     },
-    toolbar: 'halloToolbarFixed'
-  });
+    toolbar: 'halloToolbarFixed',
+    toolbarOptions: {
+      parentElement: jQuery('.toolbarcontainer').length > 0 ? ".toolbarcontainer" : "body"
+    }
+  }).trigger("focus");
 
   jQuery('.editable').each(function () {
     var editable = $(this);

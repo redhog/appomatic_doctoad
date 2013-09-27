@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-26 16:06-0500\n"
+"POT-Creation-Date: 2013-09-27 02:06-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,18 +19,22 @@ msgstr ""
 
 #: templates/appomatic_doctoad/base.html:37
 msgid "Back to current version"
-msgstr "Tillbaka till nuvarande version"
+msgstr "Tillbaka till senaste godkännda version"
 
-#: templates/appomatic_doctoad/base.html:45
+#: templates/appomatic_doctoad/base.html:44
+msgid "Dismiss change"
+msgstr "Avslå ändring"
+
+#: templates/appomatic_doctoad/base.html:46
 msgid "Apply change"
-msgstr "Godkänn ändringen"
+msgstr "Godkänn ändring"
 
-#: templates/appomatic_doctoad/base.html:47
+#: templates/appomatic_doctoad/base.html:48
 #, python-format
 msgid "Change: %(treeish)s"
 msgstr "Ändring: %(treeish)s"
 
-#: templates/appomatic_doctoad/base.html:50
+#: templates/appomatic_doctoad/base.html:51
 msgid ""
 "This change can not be applied as it is, as other changes that clashes with "
 "it have already been applied."
@@ -38,39 +42,53 @@ msgstr ""
 "Den här ändringen kan inte godkännas som den ser ut nu, eftersom den "
 "rörsamma rader som en annan ändring som redan godkännts."
 
-#: templates/appomatic_doctoad/base.html:51
+#: templates/appomatic_doctoad/base.html:52
 msgid "Fix the change"
-msgstr "Fixa ändringen"
+msgstr "Rätta ändring"
 
 #: templates/appomatic_doctoad/change.html:6
 #: templates/appomatic_doctoad/file.html:8
+#: templates/appomatic_doctoad/fix.html:8
 #: templates/appomatic_doctoad/index.html:5
 #: templates/appomatic_doctoad/index.html:18
 #: templates/appomatic_doctoad/log.html:6
 msgid "Documents"
-msgstr "Dokument"
+msgstr "Dokumentlista"
 
 #: templates/appomatic_doctoad/change.html:7
 #: templates/appomatic_doctoad/file.html:10
+#: templates/appomatic_doctoad/fix.html:10
 #: templates/appomatic_doctoad/index.html:7
 #: templates/appomatic_doctoad/log.html:8
 msgid "Differences"
-msgstr ""
+msgstr "Skillnader"
 
 #: templates/appomatic_doctoad/change.html:8
 #: templates/appomatic_doctoad/file.html:12
+#: templates/appomatic_doctoad/fix.html:12
 #: templates/appomatic_doctoad/index.html:9
 #: templates/appomatic_doctoad/log.html:10
 msgid "Log"
 msgstr "Ändringslogg"
 
 #: templates/appomatic_doctoad/file.html:19
+#: templates/appomatic_doctoad/fix.html:19
 msgid "Name of change:"
 msgstr "Namn på ändringen"
 
 #: templates/appomatic_doctoad/file.html:21
+#: templates/appomatic_doctoad/fix.html:21
+msgid "Save"
+msgstr "Spara"
+
+#: templates/appomatic_doctoad/file.html:22
+#: templates/appomatic_doctoad/fix.html:22
 msgid "Save changes"
 msgstr "Spara ändring"
+
+#: templates/appomatic_doctoad/fix.html:13
+msgid "Fixing clashing change"
+msgstr "Fixa ändringen"
 
 #: templates/appomatic_doctoad/index.html:19
 msgid "Create new document:"

@@ -57,7 +57,8 @@ div.hallotoolbar {
     border-radius: 6px;
     font-size: 12pt;
     line-height: 1.1em;
-    width: 260px;
+    width: 100%;
+    display: block !important;
     z-index: 500;
 }
 
@@ -87,9 +88,7 @@ textarea#source {
 }
 
 [contenteditable="true"].inEditMode {
-    outline-style: auto;
-    outline-width: 3px;
-    outline-color: #111111;
+    outline: none;
 }
 
 /* ANNOTATIONS */
@@ -144,4 +143,19 @@ footer p {
 }
 .popover {
   max-width: none;
+}
+.saveintoolbar {
+  float: right;
+  margin-top: -39px;
+  margin-right: 5px;
+}
+.toolbarcontainerouter {
+  width: 759px;
+  background: #eeeeec;
+}
+.toolbarcontainerouter.affix {
+  top: 0;
+}
+.editable {
+  min-width: 200px !important;
 }
