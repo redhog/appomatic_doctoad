@@ -5,6 +5,7 @@ import django.shortcuts
 import django.template.defaultfilters
 import django.core.urlresolvers
 import re
+import django.contrib.auth.decorators
 from django.conf import settings
 
 
@@ -160,6 +161,7 @@ def log(request):
     with RepoView(repo, request.GET.get("treeish", "master")) as view:
         return django.shortcuts.render(request, "appomatic_doctoad/log.html", {'request': request, 'repo': view, 'view': 'log'})
 
+@django.contrib.auth.decorators.permission_required('appomatic_doctoad.merge')
 def merge(request):
     treeish = request.GET["treeish"]
     intotreeish = request.GET.get("intotreeish", "master")
@@ -167,6 +169,7 @@ def merge(request):
         view.merge(treeish)
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index") + "?treeish=" + intotreeish)
 
+@django.contrib.auth.decorators.permission_required('appomatic_doctoad.close')
 def close(request):
     intotreeish = request.GET.get("intotreeish", "master")
     with RepoView(repo, request.GET["treeish"]) as view:

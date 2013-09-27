@@ -42,8 +42,10 @@
         {% block content_title %}
           {% if request.GET.treeish and request.GET.treeish != 'master' %}
             <div class="pull-right">
-              <a class="btn btn-danger" href="{% url 'appomatic_doctoad.views.close' %}?treeish={{request.GET.treeish}}"><i class="icon-remove-circle"></i> {% blocktrans %}Dismiss change{% endblocktrans %}</a>
-              {% if not repo.clashing_files %}
+              {% if perms.appomatic_doctoad.close %}
+                <a class="btn btn-danger" href="{% url 'appomatic_doctoad.views.close' %}?treeish={{request.GET.treeish}}"><i class="icon-remove-circle"></i> {% blocktrans %}Dismiss change{% endblocktrans %}</a>
+              {% endif %}
+              {% if perms.appomatic_doctoad.merge and not repo.clashing_files %}
                 <a class="btn {% block btnsuccess1 %}btn-success{% endblock %}" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> {% blocktrans %}Apply change{% endblocktrans %}</a>
               {% endif %}
             </div>
