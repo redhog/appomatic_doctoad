@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-27 08:12-0500\n"
+"POT-Creation-Date: 2013-09-29 14:44-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,8 +34,7 @@ msgid "Apply change"
 msgstr "Godkänn ändring"
 
 #: templates/appomatic_doctoad/base.html:61
-#, python-format
-msgid "Change: %(treeish)s"
+msgid "Change: %(name)s"
 msgstr "Ändring: %(treeish)s"
 
 #: templates/appomatic_doctoad/base.html:64
@@ -102,9 +101,17 @@ msgstr "Skapa nytt dokument:"
 msgid "Add"
 msgstr "Lägg till"
 
-#: templates/appomatic_doctoad/index.html:36
-msgid "Open change requests"
-msgstr "Öppna ändringsförslag"
+#: templates/appomatic_doctoad/index.html:38
+msgid "Change requests"
+msgstr "Förslag"
+
+#: templates/appomatic_doctoad/index.html:40
+msgid "Updates"
+msgstr "Ändringsförslag"
+
+#: templates/appomatic_doctoad/index.html:47
+msgid "Closed"
+msgstr "Avslagna"
 
 #: templates/appomatic_doctoad/landing.html:7
 msgid ""

@@ -31,12 +31,34 @@
       </div>
     </div>
     <div class="col-md-4">
-      {% if not request.GET.treeish or request.GET.treeish == 'master' %}
+      {% if repo.branches %}
         <div class="panel panel-default">
-          <div class="panel-heading">{% blocktrans %}Open change requests{% endblocktrans %}</div>
+          <div class="panel-heading">
+            {% if repo.treeish == 'master' %}
+              {% blocktrans %}Change requests{% endblocktrans %}
+            {% else %}
+              {% blocktrans %}Updates{% endblocktrans %}
+            {% endif %}
+          </div>
           <div class="list-group">
-            {% for treeish, description in repo.branches.open %}
-              <a class="list-group-item" href="{% url 'appomatic_doctoad.views.change' %}?treeish={{treeish}}">{{description}}</a>
+            {% for node in repo.branches %}
+              <div class="list-group-item">
+                {%if node.treeish == 'closed' %}
+                  <a data-toggle="collapse" href="#{{node.treeish}}-children">{% blocktrans %}Closed{% endblocktrans %}</a>
+                {% else %}
+                  <a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{node.treeish}}">{{node.description}}</a>
+                {% endif %}
+                {% if node.children %}
+                  <a class="badge pull-right" data-toggle="collapse" href="#{{node.treeish}}-children">{{node.children|length}}</a>
+                  <div id="{{node.treeish}}-children" class="collapse panel panel-default">
+                    <div class="list-group">
+                      {% for subnode in node.children %}
+                        <div class="list-group-item"><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{subnode.treeish}}">{{subnode.description}}</a></div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
             {% endfor %}
           </div>
         </div>

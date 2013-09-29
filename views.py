@@ -24,20 +24,22 @@ class RepoView(object):
 
     def __enter__(self):
         self.repo.lock.acquire()
+        try:
+            name = email = ""
+            if self.request.user.is_authenticated():
+                name, email = self.request.user.get_full_name(), self.request.user.email
+            elif 'doctoad_name' in self.request.session:
+                name, email = self.request.session["doctoad_name"], self.request.session["doctoad_email"]
+            if not name.strip(): name = "Anonymous"
+            if not email.strip(): email = "anonymous@inter.net"
 
-        name = email = ""
-        if self.request.user.is_authenticated():
-            name, email = self.request.user.get_full_name(), self.request.user.email
-        elif 'doctoad_name' in self.request.session:
-            name, email = self.request.session["doctoad_name"], self.request.session["doctoad_email"]
-        if not name.strip(): name = "Anonymous"
-        if not email.strip(): email = "anonymous@inter.net"
+            subprocess.check_output(["git", "config", "user.name", name], cwd=self.repo.root)
+            subprocess.check_output(["git", "config", "user.email", email], cwd=self.repo.root)
 
-        subprocess.check_output(["git", "config", "user.name", name], cwd=self.repo.root)
-        subprocess.check_output(["git", "config", "user.email", email], cwd=self.repo.root)
-
-        subprocess.check_output(["git", "checkout", "-f", self.treeish], cwd=self.repo.root)
-
+            subprocess.check_output(["git", "checkout", "-f", self.treeish], cwd=self.repo.root)
+        except:
+            self.repo.lock.release()
+            raise
         return self
 
     def __exit__(self, type, value, traceback):
@@ -98,6 +100,8 @@ class RepoView(object):
         return result
 
     def branch(self, name, handle_duplicates = True):
+        if self.treeish != "master":
+            name = self.treeish + "--" + name
         branch = name
         counter = 1
         while True:
@@ -113,17 +117,30 @@ class RepoView(object):
                 return branch
 
     def branches(self):
-        closed = []
-        open = []
+        branches = {}
         for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
             branch = branch.strip(" *")
             if branch == "master": continue
             branch, commit, description = re.split(r"  *", branch, 2)
-            if branch.startswith("closed--"):
-                closed.append((branch, description))
-            else:
-                open.append((branch, description))
-        return {"open": open, "closed": closed}
+            branch = branch.split("--")
+            node = branches
+            for i in xrange(0, len(branch)):
+                if branch[i] not in node:
+                    node[branch[i]] = {"treeish": '--'.join(branch[:i + 1]), 'children': {}, 'description': branch[i]}
+                node = node[branch[i]]
+                if i == len(branch) - 1:
+                    node['description'] = description
+                node = node['children']
+        if self.treeish != "master":
+            for item in self.treeish.split("--"):
+                branches = branches[item]['children']
+        def mangle(node):
+            res = node.values()
+            for item in res:
+                item['children'] = mangle(item['children'])
+            res.sort(lambda x, y: cmp(x['description'], y['description']))
+            return res
+        return mangle(branches)
 
     def current_branch(self):
         for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
