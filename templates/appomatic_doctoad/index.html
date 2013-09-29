@@ -35,8 +35,8 @@
         <div class="panel panel-default">
           <div class="panel-heading">{% blocktrans %}Open change requests{% endblocktrans %}</div>
           <div class="list-group">
-            {% for treeish in repo.branches.open %}
-              <a class="list-group-item" href="{% url 'appomatic_doctoad.views.change' %}?treeish={{treeish}}">{{treeish}}</a>
+            {% for treeish, description in repo.branches.open %}
+              <a class="list-group-item" href="{% url 'appomatic_doctoad.views.change' %}?treeish={{treeish}}">{{description}}</a>
             {% endfor %}
           </div>
         </div>

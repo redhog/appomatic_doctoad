@@ -58,21 +58,6 @@ class RepoView(object):
         with open(filepath) as f:
             return f.read()
 
-    def branch(self, name, handle_duplicates = True):
-        branch = name
-        counter = 1
-        while True:
-            try:
-                subprocess.check_output(["git", "branch", branch], cwd=self.repo.root)
-                subprocess.check_output(["git", "checkout", branch], cwd=self.repo.root)
-            except:
-                if not handle_duplicates:
-                    raise
-                branch = "%s-%s" % (name, counter)
-                counter += 1
-            else:
-                return branch
-
     def save(self, filename, content):
         filename = filename + ".md"
         with open(os.path.join(self.repo.root, filename), "w") as f:
@@ -112,24 +97,41 @@ class RepoView(object):
                 resultcommit['files'][filename] = content
         return result
 
+    def branch(self, name, handle_duplicates = True):
+        branch = name
+        counter = 1
+        while True:
+            try:
+                subprocess.check_output(["git", "branch", branch], cwd=self.repo.root)
+                subprocess.check_output(["git", "checkout", branch], cwd=self.repo.root)
+            except:
+                if not handle_duplicates:
+                    raise
+                branch = "%s-%s" % (name, counter)
+                counter += 1
+            else:
+                return branch
 
     def branches(self):
         closed = []
         open = []
-        for branch in subprocess.check_output(["git", "branch"], cwd=self.repo.root).strip().split("\n"):
+        for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
             branch = branch.strip(" *")
             if branch == "master": continue
-            if branch.startswith("closed-"):
-                closed.append(branch[len("closed-"):])
+            branch, commit, description = re.split(r"  *", branch, 2)
+            if branch.startswith("closed--"):
+                closed.append((branch, description))
             else:
-                open.append(branch)
+                open.append((branch, description))
         return {"open": open, "closed": closed}
 
     def current_branch(self):
-        for branch in subprocess.check_output(["git", "branch"], cwd=self.repo.root).strip().split("\n"):
+        for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
             branch = branch.strip()
             if branch.startswith("*"):
-                return branch[1:].strip()
+                branch = branch.strip(" *")
+                branch, commit, description = re.split(r"  *", branch, 2)
+                return branch, description
 
     def clashing_files(self, intotreeish = "master"):
         base = subprocess.check_output(["git", "merge-base", self.treeish, intotreeish], cwd=self.repo.root).strip()
@@ -152,7 +154,7 @@ class RepoView(object):
             return False
 
     def close(self):
-        subprocess.check_output(["git", "branch", "-m", self.treeish, "closed-" + self.treeish], cwd=self.repo.root)
+        subprocess.check_output(["git", "branch", "-m", self.treeish, "closed--" + self.treeish], cwd=self.repo.root)
 
 repo = Repo()
 

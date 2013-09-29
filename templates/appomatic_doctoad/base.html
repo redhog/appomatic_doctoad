@@ -58,7 +58,7 @@
                 <a class="btn {% block btnsuccess1 %}btn-success{% endblock %}" href="{% url 'appomatic_doctoad.views.merge' %}?treeish={{request.GET.treeish}}"><i class="icon-check"></i> {% blocktrans %}Apply change{% endblocktrans %}</a>
               {% endif %}
             </div>
-            <h1>{% blocktrans with treeish=request.GET.treeish %}Change: {{treeish}}{% endblocktrans %}</h1>
+            <h1>{% blocktrans with name=repo.current_branch|last %}Change: {{name}}{% endblocktrans %}</h1>
             {% if repo.clashing_files and not view == 'fix' %}
               <div class="alert alert-danger">
                  <p>{% blocktrans %}This change can not be applied as it is, as other changes that clashes with it have already been applied.{% endblocktrans %}</p>
