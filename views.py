@@ -133,6 +133,8 @@ class RepoView(object):
                 node = node['children']
         if self.treeish != "master":
             for item in self.treeish.split("--"):
+                if item not in branches:
+                    return []
                 branches = branches[item]['children']
         def mangle(node):
             res = node.values()
@@ -146,6 +148,8 @@ class RepoView(object):
         for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
             branch = branch.strip()
             if branch.startswith("*"):
+                if "(no branch)" in branch:
+                    return (self.treeish, "No branch")
                 branch = branch.strip(" *")
                 branch, commit, description = re.split(r"  *", branch, 2)
                 return branch, description
