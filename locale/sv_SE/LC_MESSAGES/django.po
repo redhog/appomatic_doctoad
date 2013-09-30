@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-29 14:44-0500\n"
+"POT-Creation-Date: 2013-09-30 15:33-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,8 +34,9 @@ msgid "Apply change"
 msgstr "Godkänn ändring"
 
 #: templates/appomatic_doctoad/base.html:61
+#, python-format
 msgid "Change: %(name)s"
-msgstr "Ändring: %(treeish)s"
+msgstr "Ändring: %(name)s"
 
 #: templates/appomatic_doctoad/base.html:64
 msgid ""
@@ -72,19 +73,24 @@ msgstr "Skillnader"
 #: templates/appomatic_doctoad/index.html:9
 #: templates/appomatic_doctoad/log.html:10
 msgid "Log"
-msgstr "Ändringslogg"
+msgstr "Historik"
 
 #: templates/appomatic_doctoad/file.html:21
 #: templates/appomatic_doctoad/fix.html:19
 msgid "Name of change:"
 msgstr "Namn på ändringen"
 
-#: templates/appomatic_doctoad/file.html:23
+#: templates/appomatic_doctoad/file.html:25
+#, python-format
+msgid "Added document %(file)s"
+msgstr ""
+
+#: templates/appomatic_doctoad/file.html:29
 #: templates/appomatic_doctoad/fix.html:21
 msgid "Save"
 msgstr "Spara"
 
-#: templates/appomatic_doctoad/file.html:24
+#: templates/appomatic_doctoad/file.html:32
 #: templates/appomatic_doctoad/fix.html:22
 msgid "Save changes"
 msgstr "Spara ändring"
@@ -97,19 +103,19 @@ msgstr "Fixa ändringen"
 msgid "Create new document:"
 msgstr "Skapa nytt dokument:"
 
-#: templates/appomatic_doctoad/index.html:22
+#: templates/appomatic_doctoad/index.html:24
 msgid "Add"
 msgstr "Lägg till"
 
-#: templates/appomatic_doctoad/index.html:38
+#: templates/appomatic_doctoad/index.html:42
 msgid "Change requests"
 msgstr "Förslag"
 
-#: templates/appomatic_doctoad/index.html:40
+#: templates/appomatic_doctoad/index.html:44
 msgid "Updates"
 msgstr "Ändringsförslag"
 
-#: templates/appomatic_doctoad/index.html:47
+#: templates/appomatic_doctoad/index.html:54
 msgid "Closed"
 msgstr "Avslagna"
 
@@ -163,15 +169,17 @@ msgstr "Jag är admin"
 msgid "Click the toad to start working with the documents"
 msgstr "Klicka på paddan för att börja arbeta med dokumenten"
 
-#: templates/appomatic_doctoad/log.html:17
-#, python-format
-msgid ""
-"\n"
-"       <div>Author: %(author)s</div>\n"
-"       <div>Date: %(date)s</div>\n"
-"     "
-msgstr ""
-"\n"
-"       <div>Författare: %(author)s</div>\n"
-"       <div>Datum: %(date)s</div>\n"
-"     "
+#: templates/appomatic_doctoad/log.html:20
+msgid "by"
+msgstr "av"
+
+#~ msgid ""
+#~ "\n"
+#~ "       <div>Author: %(author)s</div>\n"
+#~ "       <div>Date: %(date)s</div>\n"
+#~ "     "
+#~ msgstr ""
+#~ "\n"
+#~ "       <div>Författare: %(author)s</div>\n"
+#~ "       <div>Datum: %(date)s</div>\n"
+#~ "     "
