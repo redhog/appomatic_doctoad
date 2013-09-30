@@ -23,6 +23,13 @@ class CommandError(subprocess.CalledProcessError):
     def __str__(self):
         return "%s:\n%s\n%s" % (self.cmd, self.output, self.stderr)
 
+def get_parent(treeish):
+    if '--' in treeish:
+        parent = treeish.rsplit('--', 1)[0]
+        if parent != 'closed':
+            return parent
+    return "master"
+
 class RepoView(object):
     def __init__(self, repo, request, treeish = None):
         self.repo = repo
@@ -33,8 +40,8 @@ class RepoView(object):
         os.ftruncate(self.stderr, 0)
         try:
             return subprocess.check_output([a.encode("utf-8") for a in arg], cwd=self.repo.root, stderr=self.stderr).decode("utf-8")
-        except Exception, e:
-            with os.fdopen(self.stderr, "r") as f:
+        except subprocess.CalledProcessError, e:
+            with os.fdopen(os.dup(self.stderr), "r") as f:
                 f.seek(0)
                 raise CommandError(f.read(), e)
 
@@ -179,7 +186,9 @@ class RepoView(object):
                 branch, description = re.match("^\* (.*[^ ])  *[0-9a-f]{7} (.*)$", branch).groups()
                 return branch, description
 
-    def clashing_files(self, intotreeish = "master"):
+    def clashing_files(self, intotreeish = None):
+        if not intotreeish:
+            intotreeish = get_parent(self.treeish)
         base = self.run("git", "merge-base", self.treeish, intotreeish).strip()
         result = self.run("git", "merge-tree", base, self.treeish, intotreeish).strip()
         return re.findall(r"changed in both\n *base *[0-9]* [0-9a-f]* (.*).md", result)
@@ -241,25 +250,25 @@ def log(request):
 
 @django.contrib.auth.decorators.permission_required('appomatic_doctoad.merge')
 def merge(request):
-    treeish = request.GET["treeish"]
-    intotreeish = request.GET.get("intotreeish", "master")
+    treeish = request.GET.get("treeish", None) or "master"
+    intotreeish = request.GET.get("intotreeish", get_parent(treeish))
     with RepoView(repo, request, intotreeish) as view:
         view.merge(treeish)
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index") + "?treeish=" + intotreeish)
 
 @django.contrib.auth.decorators.permission_required('appomatic_doctoad.close')
 def close(request):
-    intotreeish = request.GET.get("intotreeish", "master")
     with RepoView(repo, request, request.GET["treeish"]) as view:
         view.close()
         return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index"))
 
 def fix(request):
-    with RepoView(repo, request, request.GET.get("treeish", None) or "master") as view:
+    treeish = request.GET.get("treeish", None) or "master"
+    with RepoView(repo, request, treeish) as view:
         if request.method == "POST":
             view.close()
             branch = view.branch(django.template.defaultfilters.slugify(request.POST["description"]))
-            view.update(request.GET.get("intotreeish", "master"))
+            view.update(request.GET.get("intotreeish", get_parent(treeish)))
             for name in request.POST.iterkeys():
                 if name.endswith("_source"):
                     content = request.POST[name]
@@ -268,7 +277,7 @@ def fix(request):
             view.commit(request.POST["description"])
             return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.change") + "?treeish=" + branch)
         else:
-            view.update(request.GET.get("intotreeish", "master"))
+            view.update(request.GET.get("intotreeish", get_parent(treeish)))
             return django.shortcuts.render(request, "appomatic_doctoad/fix.html", {'request': request, 'repo': view, 'view': 'fix'})
 
 def logout(request):
