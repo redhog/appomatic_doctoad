@@ -8,13 +8,20 @@ import django.contrib.auth
 import django.contrib.messages
 import re
 import django.contrib.auth.decorators
+import tempfile
 from django.conf import settings
-
 
 class Repo(object):
     def __init__(self, root = None):
         self.root = root or os.path.join(settings.VIRTUALENV_DIR, "repo")
         self.lock = threading.Lock()
+
+class CommandError(subprocess.CalledProcessError):
+    def __init__(self, stderr, base):
+        subprocess.CalledProcessError.__init__(self, base.returncode, base.cmd, base.output)
+        self.stderr = stderr
+    def __str__(self):
+        return "%s:\n%s\n%s" % (self.cmd, self.output, self.stderr)
 
 class RepoView(object):
     def __init__(self, repo, request, treeish = None):
@@ -22,7 +29,17 @@ class RepoView(object):
         self.request = request
         self.treeish = treeish or 'master'
 
+    def run(self, *arg):
+        os.ftruncate(self.stderr, 0)
+        try:
+            return subprocess.check_output([a.encode("utf-8") for a in arg], cwd=self.repo.root, stderr=self.stderr).decode("utf-8")
+        except Exception, e:
+            with os.fdopen(self.stderr, "r") as f:
+                f.seek(0)
+                raise CommandError(f.read(), e)
+
     def __enter__(self):
+        self.stderr, self.stderrpath = tempfile.mkstemp()
         self.repo.lock.acquire()
         try:
             name = email = ""
@@ -33,10 +50,10 @@ class RepoView(object):
             if not name.strip(): name = "Anonymous"
             if not email.strip(): email = "anonymous@inter.net"
 
-            subprocess.check_output(["git", "config", "user.name", name], cwd=self.repo.root)
-            subprocess.check_output(["git", "config", "user.email", email], cwd=self.repo.root)
+            self.run("git", "config", "--replace-all", "user.name", name)
+            self.run("git", "config", "--replace-all", "user.email", email)
 
-            subprocess.check_output(["git", "checkout", "-f", self.treeish], cwd=self.repo.root)
+            self.run("git", "checkout", "-f", self.treeish)
         except:
             self.repo.lock.release()
             raise
@@ -44,12 +61,13 @@ class RepoView(object):
 
     def __exit__(self, type, value, traceback):
         self.repo.lock.release()
+        os.unlink(self.stderrpath)
         return
 
     def ls_files(self):
         return [filename.rsplit(".", 1)[0]
                 for filename
-                in subprocess.check_output(["git", "ls-files"], cwd=self.repo.root).strip().split("\n")
+                in self.run("git", "ls-files").strip().split("\n")
                 if filename.endswith(".md")]
 
     def cat_file(self, filename):
@@ -64,15 +82,15 @@ class RepoView(object):
         filename = filename + ".md"
         with open(os.path.join(self.repo.root, filename), "w") as f:
             f.write(content.encode("utf-8"))
-        subprocess.check_output(["git", "add", filename], cwd=self.repo.root)
+        self.run("git", "add", filename)
 
     def commit(self, msg):
-        subprocess.check_output(["git", "commit", "-m", msg], cwd=self.repo.root)
+        self.run("git", "commit", "-m", msg)
         
     def diff(self):
-        output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", "master..." + self.treeish], cwd=self.repo.root)
+        output = self.run("git", "diff", "-p", "-U9999999", "--word-diff=plain", "master..." + self.treeish)
         if not output.strip():
-            output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", self.treeish + "^..." + self.treeish], cwd=self.repo.root)
+            output = self.run("git", "diff", "-p", "-U9999999", "--word-diff=plain", self.treeish + "^..." + self.treeish)
             
         result = {}
         for file in output.split("diff --git ")[1:]:
@@ -86,9 +104,9 @@ class RepoView(object):
         if diffish != "master":
             diffish = "master.." + diffish
 
-        output = subprocess.check_output(["git", "log", "-U4", "--word-diff=plain", diffish], cwd=self.repo.root)
+        output = self.run("git", "log", "-U4", "--word-diff=plain", diffish)
         if not output.strip():
-            output = subprocess.check_output(["git", "log", "-U4", "--word-diff=plain", self.treeish + "^..." + self.treeish], cwd=self.repo.root)
+            output = self.run("git", "log", "-U4", "--word-diff=plain", self.treeish + "^..." + self.treeish)
 
         result = []
         ids = re.findall(r"commit ([0-9a-f]*)", output)
@@ -111,8 +129,8 @@ class RepoView(object):
         counter = 1
         while True:
             try:
-                subprocess.check_output(["git", "branch", branch], cwd=self.repo.root)
-                subprocess.check_output(["git", "checkout", branch], cwd=self.repo.root)
+                self.run("git", "branch", branch)
+                self.run("git", "checkout", branch)
             except:
                 if not handle_duplicates:
                     raise
@@ -123,7 +141,7 @@ class RepoView(object):
 
     def branches(self):
         branches = {}
-        for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
+        for branch in self.run("git", "branch", "-v").strip().split("\n"):
             branch = branch.strip(" *")
             if branch == "master": continue
             branch, commit, description = re.split(r"  *", branch, 2)
@@ -150,34 +168,34 @@ class RepoView(object):
         return mangle(branches)
 
     def current_branch(self):
-        for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
+        for branch in self.run("git", "branch", "-v").strip().split("\n"):
             branch = branch.strip()
             if branch.startswith("*"):
                 branch, description = re.match("^\* (.*[^ ])  *[0-9a-f]{7} (.*)$", branch).groups()
                 return branch, description
 
     def clashing_files(self, intotreeish = "master"):
-        base = subprocess.check_output(["git", "merge-base", self.treeish, intotreeish], cwd=self.repo.root).strip()
-        result = subprocess.check_output(["git", "merge-tree", base, self.treeish, intotreeish], cwd=self.repo.root).strip()
+        base = self.run("git", "merge-base", self.treeish, intotreeish).strip()
+        result = self.run("git", "merge-tree", base, self.treeish, intotreeish).strip()
         return re.findall(r"changed in both\n *base *[0-9]* [0-9a-f]* (.*).md", result)
 
     def merge(self, fromtreeish):
-        subprocess.check_output(["git", "merge", fromtreeish], cwd=self.repo.root)
+        self.run("git", "merge", fromtreeish)
         try:
-            subprocess.check_output(["git", "branch", "-d", fromtreeish], cwd=self.repo.root)
+            self.run("git", "branch", "-d", fromtreeish)
         except:
             # If it's not a branch, just ignore...
             pass
 
     def update(self, fromtreeish = "master"):
         try:
-            subprocess.check_output(["git", "merge", fromtreeish], cwd=self.repo.root)
+            self.run("git", "merge", fromtreeish)
             return True
         except:
             return False
 
     def close(self):
-        subprocess.check_output(["git", "branch", "-m", self.treeish, "closed--" + self.treeish], cwd=self.repo.root)
+        self.run("git", "branch", "-m", self.treeish, "closed--" + self.treeish)
 
 repo = Repo()
 
