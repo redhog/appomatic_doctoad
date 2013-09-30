@@ -83,7 +83,7 @@ msgstr "Namn på ändringen"
 #: templates/appomatic_doctoad/file.html:25
 #, python-format
 msgid "Added document %(file)s"
-msgstr ""
+msgstr "Nytt dokument %(file)s"
 
 #: templates/appomatic_doctoad/file.html:29
 #: templates/appomatic_doctoad/fix.html:21
