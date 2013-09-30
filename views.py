@@ -78,6 +78,11 @@ class RepoView(object):
         with open(filepath) as f:
             return f.read()
 
+    def is_new_file(self, filename):
+        filename = filename + ".md"
+        filepath = os.path.join(self.repo.root, filename)
+        return not os.path.exists(filepath)
+
     def save(self, filename, content):
         filename = filename + ".md"
         with open(os.path.join(self.repo.root, filename), "w") as f:

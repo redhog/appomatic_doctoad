@@ -19,8 +19,16 @@
     <div class="toolbarcontainerouter" data-spy="affix" data-offset-top="255">
       <div class="toolbarcontainer"></div>
       <a class="btn {% block btnsuccess2 %}btn-success{% endblock %} popover-trigger saveintoolbar" title="{% blocktrans %}Name of change:{% endblocktrans %}" data-content="
-          <div class='form-group'><input type='text' name='description' class='form-control'></div>
-          <button class='btn btn-success' type='submit' value='save'><i class='icon-save'></i> {% blocktrans %}Save{% endblocktrans %}</button>
+          <div class='input-group'>
+            <input type='text' name='description' class='form-control'
+              {% if repo|method:"is_new_file"|arg:request.GET.file|call %}
+                value='{% blocktrans with file=request.GET.file %}Added document {{file}}{% endblocktrans %}'
+              {% endif %}
+            >
+            <div class='input-group-btn'>
+              <button class='btn btn-success' type='submit' value='save'><i class='icon-save'></i> {% blocktrans %}Save{% endblocktrans %}</button>
+            </div>
+          </div>
       " href="javascript: void(0);"><i class="icon-save"></i> {% blocktrans %}Save changes{% endblocktrans %}</a>    
     </div>
     <textarea id="document_source" name="source" style="display: none;">{{repo|method:"cat_file"|arg:request.GET.file|call|safe}}</textarea>

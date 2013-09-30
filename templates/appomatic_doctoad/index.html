@@ -17,9 +17,13 @@
         <div class="panel-heading">
           {% blocktrans %}Documents{% endblocktrans %}
           <a class="pull-right popover-trigger" title="{% blocktrans %}Create new document:{% endblocktrans %}" data-content="
-            <form style='white-space: nowrap;' class='form-inline' method='GET' action='{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}'>
-              <div class='form-group'><input class='form-control' type='text' name='file'></div>
-              <div class='form-group'><button type='submit' class='btn btn-default'>{% blocktrans %}Add{% endblocktrans %}</button></div>
+            <form method='GET' action='{% url 'appomatic_doctoad.views.file' %}?treeish={{request.GET.treeish}}'>
+              <div class='input-group'>
+                <input class='form-control' type='text' name='file'>
+                <div class='input-group-btn'>
+                  <button type='submit' class='btn btn-success'><i class='icon-plus'></i> {% blocktrans %}Add{% endblocktrans %}</button>
+                </div>
+              </div>
             </form>
           " href="javascript: void(0);"><i class="icon-plus"></i></a>
         </div>
