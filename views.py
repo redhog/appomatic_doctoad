@@ -71,6 +71,9 @@ class RepoView(object):
         
     def diff(self):
         output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", "master..." + self.treeish], cwd=self.repo.root)
+        if not output.strip():
+            output = subprocess.check_output(["git", "diff", "-p", "-U9999999", "--word-diff=plain", self.treeish + "^..." + self.treeish], cwd=self.repo.root)
+            
         result = {}
         for file in output.split("diff --git ")[1:]:
             filename = file.split(" b/")[0][2:].rsplit(".", 1)[0]
@@ -84,6 +87,8 @@ class RepoView(object):
             diffish = "master.." + diffish
 
         output = subprocess.check_output(["git", "log", "-U4", "--word-diff=plain", diffish], cwd=self.repo.root)
+        if not output.strip():
+            output = subprocess.check_output(["git", "log", "-U4", "--word-diff=plain", self.treeish + "^..." + self.treeish], cwd=self.repo.root)
 
         result = []
         ids = re.findall(r"commit ([0-9a-f]*)", output)
@@ -148,10 +153,7 @@ class RepoView(object):
         for branch in subprocess.check_output(["git", "branch", "-v"], cwd=self.repo.root).strip().split("\n"):
             branch = branch.strip()
             if branch.startswith("*"):
-                if "(no branch)" in branch:
-                    return (self.treeish, "No branch")
-                branch = branch.strip(" *")
-                branch, commit, description = re.split(r"  *", branch, 2)
+                branch, description = re.match("^\* (.*[^ ])  *[0-9a-f]{7} (.*)$", branch).groups()
                 return branch, description
 
     def clashing_files(self, intotreeish = "master"):

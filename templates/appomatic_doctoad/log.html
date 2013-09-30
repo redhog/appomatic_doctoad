@@ -15,10 +15,12 @@
   {% for commit in repo.log %}
      <div class="panel panel-default">
        <div class="panel-heading">
-         <a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{commit.id}}">{{commit.comment}}</a>
-         {% blocktrans %}by{% endblocktrans %}
-         {{commit.author}}
-         <span class="pull-right">{{commit.date}}</span>
+         <a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{commit.id}}">
+           {{commit.comment}}
+           {% blocktrans %}by{% endblocktrans %}
+           {{commit.author}}
+           <span class="pull-right">{{commit.date}}</span>
+         </a>
        </div>
        <div class="list-group">
          {% for filename, content in commit.files.items %}
