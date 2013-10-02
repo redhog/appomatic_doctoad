@@ -135,11 +135,11 @@ footer p {
   text-decoration: line-through;
 }
 
-.version-one {
-  border-left: 4px solid #0000ff;
-}
-.version-two {
-  border-left: 4px solid #ff00ff;
+.version-one, .version-two {
+  margin-left: 20pt;
+  margin-top: 2pt;
+  margin-bottom: 2pt;
+  background: #ddddda;
 }
 .popover {
   max-width: none;

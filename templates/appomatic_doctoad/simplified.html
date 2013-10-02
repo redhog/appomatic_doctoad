@@ -9,11 +9,16 @@
 {% endblock %}
 
 {% block content %}
-  To change
   {% for filename, content in repo.simplified_diff.iteritems %}
     {% for heading, lines in content %}
       {% for line in lines %}
-        <div>{{line}} under {{heading}} in {{filename}}</div>
+        <div class="simplified-change">
+          To change
+          <blockquote class="version-one">{{line.before}}</blockquote>
+          into
+          <blockquote class="version-two">{{line.after}}</blockquote>
+          under <em class="heading">{{heading}}</em> in <em class="filename">{{filename}}</em>
+        </div>
       {% endfor %}
     {% endfor %}
   {% endfor %}

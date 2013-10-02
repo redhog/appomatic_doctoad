@@ -119,11 +119,15 @@ class RepoView(object):
             headings = []
             for line in content.split("\n"):
                 if line.strip().startswith("#"):
-                    heading = line
+                    heading = line.strip("# ")
                     headings.append(heading)
                 if "{+" in line or "[-" in line:
                     if heading not in rescontent: rescontent[heading] = []
-                    rescontent[heading].append(line)
+                    rescontent[heading].append({
+                            "inline": line,
+                            "before": re.compile("\[-(.*?)-\]").sub("\\1", re.compile("\{\+.*?\+\}").sub("", line)),
+                            "after": re.compile("\{\+(.*?)\+\}").sub("\\1", re.compile("\[-.*?-\]").sub("", line))
+                            })
             res[filename] = [(heading, rescontent[heading]) for heading in headings if heading in rescontent]
         return res
 
