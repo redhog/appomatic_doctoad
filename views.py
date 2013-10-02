@@ -125,8 +125,8 @@ class RepoView(object):
                     if heading not in rescontent: rescontent[heading] = []
                     rescontent[heading].append({
                             "inline": line,
-                            "before": re.compile("\[-(.*?)-\]").sub("\\1", re.compile("\{\+.*?\+\}").sub("", line)),
-                            "after": re.compile("\{\+(.*?)\+\}").sub("\\1", re.compile("\[-.*?-\]").sub("", line))
+                            "before": re.compile("\{\+.*?\+\}").sub("", line),
+                            "after": re.compile("\[-.*?-\]").sub("", line)
                             })
             res[filename] = [(heading, rescontent[heading]) for heading in headings if heading in rescontent]
         return res
@@ -245,11 +245,11 @@ def landing(request):
                 django.contrib.auth.login(request, user)
                 return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.index"))
             django.contrib.messages.error(request, 'Bad username or password.')
-    return django.shortcuts.render(request, "appomatic_doctoad/landing.html", {'request': request, 'view': 'landing'})
+    return django.shortcuts.render(request, "appomatic_doctoad/landing.html", {'view': 'landing'})
 
 def index(request):
     with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/index.html", {'request': request, 'repo': view, 'view': 'index'})
+        return django.shortcuts.render(request, "appomatic_doctoad/index.html", {'repo': view, 'view': 'index'})
 
 def file(request):
     with RepoView(repo, request, request.GET.get("treeish", None) or "master") as view:
@@ -257,20 +257,20 @@ def file(request):
             branch = view.branch(django.template.defaultfilters.slugify(request.POST["description"]))
             view.save(request.GET["file"], request.POST["source"])
             view.commit(request.POST["description"])
-            return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.change") + "?treeish=" + branch)
-        return django.shortcuts.render(request, "appomatic_doctoad/file.html", {'request': request, 'repo': view, 'view': 'file'})
+            return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.simplified") + "?treeish=" + branch)
+        return django.shortcuts.render(request, "appomatic_doctoad/file.html", {'repo': view, 'view': 'file'})
 
 def change(request):
     with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/change.html", {'request': request, 'repo': view, 'view': 'change'})
+        return django.shortcuts.render(request, "appomatic_doctoad/change.html", {'repo': view, 'view': 'change'})
 
 def simplified(request):
     with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/simplified.html", {'request': request, 'repo': view, 'view': 'simplified'})
+        return django.shortcuts.render(request, "appomatic_doctoad/simplified.html", {'repo': view, 'view': 'simplified'})
 
 def log(request):
     with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
-        return django.shortcuts.render(request, "appomatic_doctoad/log.html", {'request': request, 'repo': view, 'view': 'log'})
+        return django.shortcuts.render(request, "appomatic_doctoad/log.html", {'repo': view, 'view': 'log'})
 
 @django.contrib.auth.decorators.permission_required('appomatic_doctoad.merge')
 def merge(request):
@@ -302,7 +302,7 @@ def fix(request):
             return django.shortcuts.redirect(django.core.urlresolvers.reverse("appomatic_doctoad.views.change") + "?treeish=" + branch)
         else:
             view.update(request.GET.get("intotreeish", get_parent(treeish)))
-            return django.shortcuts.render(request, "appomatic_doctoad/fix.html", {'request': request, 'repo': view, 'view': 'fix'})
+            return django.shortcuts.render(request, "appomatic_doctoad/fix.html", {'repo': view, 'view': 'fix'})
 
 def logout(request):
     django.contrib.auth.logout(request)

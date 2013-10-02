@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-30 15:33-0500\n"
+"POT-Creation-Date: 2013-10-02 16:08-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,72 +50,64 @@ msgstr ""
 msgid "Fix the change"
 msgstr "Rätta ändring"
 
-#: templates/appomatic_doctoad/change.html:6
-#: templates/appomatic_doctoad/file.html:8
-#: templates/appomatic_doctoad/fix.html:8
-#: templates/appomatic_doctoad/index.html:5
-#: templates/appomatic_doctoad/index.html:18
-#: templates/appomatic_doctoad/log.html:6
+#: templates/appomatic_doctoad/base.html:75
+#: templates/appomatic_doctoad/index.html:9
 msgid "Documents"
 msgstr "Dokumentlista"
 
-#: templates/appomatic_doctoad/change.html:7
-#: templates/appomatic_doctoad/file.html:10
-#: templates/appomatic_doctoad/fix.html:10
-#: templates/appomatic_doctoad/index.html:7
-#: templates/appomatic_doctoad/log.html:8
+#: templates/appomatic_doctoad/base.html:77
 msgid "Differences"
 msgstr "Skillnader"
 
-#: templates/appomatic_doctoad/change.html:8
-#: templates/appomatic_doctoad/file.html:12
-#: templates/appomatic_doctoad/fix.html:12
-#: templates/appomatic_doctoad/index.html:9
-#: templates/appomatic_doctoad/log.html:10
+#: templates/appomatic_doctoad/base.html:78
+msgid "Description of change"
+msgstr "Som motion"
+
+#: templates/appomatic_doctoad/base.html:80
 msgid "Log"
 msgstr "Historik"
 
-#: templates/appomatic_doctoad/file.html:21
-#: templates/appomatic_doctoad/fix.html:19
+#: templates/appomatic_doctoad/file.html:17
+#: templates/appomatic_doctoad/fix.html:15
 msgid "Name of change:"
 msgstr "Namn på ändringen"
 
-#: templates/appomatic_doctoad/file.html:25
+#: templates/appomatic_doctoad/file.html:21
 #, python-format
 msgid "Added document %(file)s"
 msgstr "Nytt dokument %(file)s"
 
-#: templates/appomatic_doctoad/file.html:29
-#: templates/appomatic_doctoad/fix.html:21
+#: templates/appomatic_doctoad/file.html:25
+#: templates/appomatic_doctoad/fix.html:17
 msgid "Save"
 msgstr "Spara"
 
-#: templates/appomatic_doctoad/file.html:32
-#: templates/appomatic_doctoad/fix.html:22
+#: templates/appomatic_doctoad/file.html:28
+#: templates/appomatic_doctoad/fix.html:18
 msgid "Save changes"
 msgstr "Spara ändring"
 
-#: templates/appomatic_doctoad/fix.html:13
+#: templates/appomatic_doctoad/fix.html:9
 msgid "Fixing clashing change"
 msgstr "Fixa ändringen"
 
-#: templates/appomatic_doctoad/index.html:19
+#: templates/appomatic_doctoad/index.html:10
 msgid "Create new document:"
 msgstr "Skapa nytt dokument:"
 
-#: templates/appomatic_doctoad/index.html:24
+#: templates/appomatic_doctoad/index.html:15
 msgid "Add"
 msgstr "Lägg till"
 
-#: templates/appomatic_doctoad/index.html:42
+#: templates/appomatic_doctoad/index.html:33
 msgid "Change requests"
 msgstr "Förslag"
 
-#: templates/appomatic_doctoad/index.html:44
+#: templates/appomatic_doctoad/index.html:35
 msgid "Updates"
 msgstr "Ändringsförslag"
 
-#: templates/appomatic_doctoad/index.html:54
+#: templates/appomatic_doctoad/index.html:45
 msgid "Closed"
 msgstr "Avslagna"
 
@@ -169,17 +161,28 @@ msgstr "Jag är admin"
 msgid "Click the toad to start working with the documents"
 msgstr "Klicka på paddan för att börja arbeta med dokumenten"
 
-#: templates/appomatic_doctoad/log.html:20
+#: templates/appomatic_doctoad/log.html:11
 msgid "by"
 msgstr "av"
 
-#~ msgid ""
-#~ "\n"
-#~ "       <div>Author: %(author)s</div>\n"
-#~ "       <div>Date: %(date)s</div>\n"
-#~ "     "
-#~ msgstr ""
-#~ "\n"
-#~ "       <div>Författare: %(author)s</div>\n"
-#~ "       <div>Datum: %(date)s</div>\n"
-#~ "     "
+#: templates/appomatic_doctoad/simplified.html:11
+#, python-format
+msgid ""
+"\n"
+"            To change\n"
+"            <blockquote class=\"version-one\">%(before)s</blockquote>\n"
+"            into\n"
+"            <blockquote class=\"version-two\">%(after)s</blockquote>\n"
+"            under <em class=\"heading\">%(heading)s</em> in <em class="
+"\"filename\">%(filename)s</em>. For details see the change in DocToad: <a "
+"href=\"%(changeurl)s\">%(changeurl)s</a>.\n"
+"          "
+msgstr ""
+"\n"
+"            Att ändra\n"
+"            <blockquote class=\"version-one\">%(before)s</blockquote>\n"
+"            till\n"
+"            <blockquote class=\"version-two\">%(after)s</blockquote>\n"
+"            under <em class=\"heading\">%(heading)s</em> i dokumentet <em "
+"class=\"filename\">%(filename)s</em>. Du kan se ändringen i sitt ursprungliga sammanhang i DocToad: <a href="
+"\"%(changeurl)s\">%(changeurl)s</a>."

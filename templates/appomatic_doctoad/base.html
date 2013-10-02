@@ -71,7 +71,14 @@
       </div>
 
       <ul class="nav nav-tabs">
-        {% block menu %}{% endblock %}
+        {% block menu %}
+           <li {% if view == 'index' %}class="active"{% endif %}><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Documents{% endblocktrans %}</a></li>
+           {% if request.GET.treeish and request.GET.treeish != 'master' %}
+             <li {% if view == 'change' %}class="active"{% endif %}><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Differences{% endblocktrans %}</a></li>
+             <li {% if view == 'simplified' %}class="active"{% endif %}><a href="{% url 'appomatic_doctoad.views.simplified' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Description of change{% endblocktrans %}</a></li>
+           {% endif %}
+           <li {% if view == 'log' %}class="active"{% endif %}><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Log{% endblocktrans %}</a></li>
+        {% endblock %}
       </ul>
       <br>
 

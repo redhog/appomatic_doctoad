@@ -2,25 +2,21 @@
 {% load i18n %}
 {% load doctoad %}
 
-{% block menu %}
-  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Documents{% endblocktrans %}</a></li>
-  <li class="active"><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Differences{% endblocktrans %}</a></li>
-  <li><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Log{% endblocktrans %}</a></li>
-{% endblock %}
-
 {% block content %}
   {% for filename, content in repo.simplified_diff.iteritems %}
     {% for heading, lines in content %}
       {% for line in lines %}
         <div class="simplified-change">
-          To change
-          <blockquote class="version-one">{{line.before}}</blockquote>
-          into
-          <blockquote class="version-two">{{line.after}}</blockquote>
-          under <em class="heading">{{heading}}</em> in <em class="filename">{{filename}}</em>
+          {% url 'appomatic_doctoad.views.change' as changeurl %}
+          {% blocktrans with before=line.before after=line.after heading=heading filename=filename changeurl=site_url|add:changeurl|add:"?treeish="|add:request.GET.treeish %}
+            To change
+            <blockquote class="version-one viewable">{{before}}</blockquote>
+            into
+            <blockquote class="version-two viewable">{{after}}</blockquote>
+            under <em class="heading">{{heading}}</em> in <em class="filename">{{filename}}</em>. For details see the change in DocToad: <a href="{{changeurl}}">{{changeurl}}</a>.
+          {% endblocktrans %}
         </div>
       {% endfor %}
     {% endfor %}
   {% endfor %}
-
 {% endblock %}

@@ -2,16 +2,7 @@
 {% load i18n %}
 {% load doctoad %}
 
-{% block menu %}
-  <li><a href="{% url 'appomatic_doctoad.views.index' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Documents{% endblocktrans %}</a></li>
-  {% if request.GET.treeish and request.GET.treeish != 'master' %}
-    <li><a href="{% url 'appomatic_doctoad.views.change' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Differences{% endblocktrans %}</a></li>
-  {% endif %}
-  <li class="active"><a href="{% url 'appomatic_doctoad.views.log' %}?treeish={{request.GET.treeish}}">{% blocktrans %}Log{% endblocktrans %}</a></li>
-{% endblock %}
-
 {% block content %}
-
   {% for commit in repo.log %}
      <div class="panel panel-default">
        <div class="panel-heading">
