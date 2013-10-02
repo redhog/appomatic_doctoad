@@ -35,7 +35,7 @@ jQuery(document).ready(function() {
     var html = content.split("\n").map($.trim).filter(function(line) { 
       return line != "";
     }).join("\n");
-    return toMarkdown(html);
+    return toMarkdown(html).replace(/\.  *([^\n])/g, ".\n$1");
   };
 
   var converter = new Showdown.converter({extensions:["change"]});

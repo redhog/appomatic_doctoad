@@ -111,6 +111,22 @@ class RepoView(object):
             result[filename] = content
         return result
 
+    def simplified_diff(self):
+        res = {}
+        for filename, content in self.diff().iteritems():
+            rescontent = {}
+            heading = None
+            headings = []
+            for line in content.split("\n"):
+                if line.strip().startswith("#"):
+                    heading = line
+                    headings.append(heading)
+                if "{+" in line or "[-" in line:
+                    if heading not in rescontent: rescontent[heading] = []
+                    rescontent[heading].append(line)
+            res[filename] = [(heading, rescontent[heading]) for heading in headings if heading in rescontent]
+        return res
+
     def log(self):
         diffish = self.treeish
         if diffish != "master":
@@ -243,6 +259,10 @@ def file(request):
 def change(request):
     with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
         return django.shortcuts.render(request, "appomatic_doctoad/change.html", {'request': request, 'repo': view, 'view': 'change'})
+
+def simplified(request):
+    with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
+        return django.shortcuts.render(request, "appomatic_doctoad/simplified.html", {'request': request, 'repo': view, 'view': 'simplified'})
 
 def log(request):
     with RepoView(repo, request, request.GET.get("treeish", "master")) as view:
