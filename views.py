@@ -171,8 +171,8 @@ class RepoView(object):
         branches = {}
         for branch in self.run("git", "branch", "-v").strip().split("\n"):
             branch = branch.strip(" *")
-            if branch == "master": continue
             branch, commit, description = re.split(r"  *", branch, 2)
+            if branch == "master": continue
             branch = branch.split("--")
             node = branches
             for i in xrange(0, len(branch)):
