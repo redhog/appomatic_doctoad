@@ -39,7 +39,7 @@ class RepoView(object):
     def run(self, *arg):
         os.ftruncate(self.stderr, 0)
         try:
-            return subprocess.check_output([a.encode("utf-8") for a in arg], cwd=self.repo.root, stderr=self.stderr).decode("utf-8")
+            return subprocess.check_output([a.encode("utf-8") for a in arg], cwd=self.repo.root, stderr=self.stderr).decode('string_escape').decode("utf-8")
         except subprocess.CalledProcessError, e:
             with os.fdopen(os.dup(self.stderr), "r") as f:
                 f.seek(0)
@@ -74,25 +74,31 @@ class RepoView(object):
     def ls_files(self):
         return [filename.rsplit(".", 1)[0]
                 for filename
-                in self.run("git", "ls-files").strip().split("\n")
+                in (filename.strip('"')
+                    for filename
+                    in self.run("git", "ls-files").strip().split("\n"))
                 if filename.endswith(".md")]
 
     def cat_file(self, filename):
         filename = filename + ".md"
         filepath = os.path.join(self.repo.root, filename)
+        filepath = filepath.encode("utf-8")
         if not os.path.exists(filepath):
             return 'Nothing here yet :)'
         with open(filepath) as f:
-            return f.read()
+            return f.read().decode("utf-8")
 
     def is_new_file(self, filename):
         filename = filename + ".md"
         filepath = os.path.join(self.repo.root, filename)
+        filepath = filepath.encode("utf-8")
         return not os.path.exists(filepath)
 
     def save(self, filename, content):
         filename = filename + ".md"
-        with open(os.path.join(self.repo.root, filename), "w") as f:
+        filepath = os.path.join(self.repo.root, filename)
+        filepath = filepath.encode("utf-8")
+        with open(filepath, "w") as f:
             f.write(content.encode("utf-8"))
         self.run("git", "add", filename)
 
@@ -106,7 +112,7 @@ class RepoView(object):
             
         result = {}
         for file in output.split("diff --git ")[1:]:
-            filename = file.split(" b/")[0][2:].rsplit(".", 1)[0]
+            filename = re.split(' "?b/', file)[0].strip('"')[2:].rsplit(".", 1)[0]
             content = re.split(r"@@.*@@", file)[1]
             result[filename] = content
         return result
