@@ -98,6 +98,9 @@ class RepoView(object):
         filename = filename + ".md"
         filepath = os.path.join(self.repo.root, filename)
         filepath = filepath.encode("utf-8")
+        dirpath = os.path.split(filepath)[0]
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
         with open(filepath, "w") as f:
             f.write(content.encode("utf-8"))
         self.run("git", "add", filename)
@@ -122,7 +125,7 @@ class RepoView(object):
         for filename, content in self.diff().iteritems():
             rescontent = {}
             heading = None
-            headings = []
+            headings = [None]
             for line in content.split("\n"):
                 if line.strip().startswith("#"):
                     heading = line.strip("# ")
@@ -155,7 +158,7 @@ class RepoView(object):
             resultcommit = {'id': id, 'files': {}, 'author': author.strip(), 'comment': comment.strip(), 'date': date.strip()}
             result.append(resultcommit)
             for file in commit.split("diff --git ")[1:]:
-                filename = file.split(" b/")[0][2:].rsplit(".", 1)[0]
+                filename = re.split(' "?b/', file)[0].strip('"')[2:].rsplit(".", 1)[0]
                 content = re.split(r"@@.*@@", file)[1]
                 resultcommit['files'][filename] = content
         return result

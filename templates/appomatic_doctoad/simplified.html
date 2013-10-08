@@ -8,12 +8,35 @@
       {% for line in lines %}
         <div class="simplified-change">
           {% url 'appomatic_doctoad.views.change' as changeurl %}
-          {% blocktrans with before=line.before after=line.after heading=heading filename=filename changeurl=site_url|add:changeurl|add:"?treeish="|add:request.GET.treeish %}
-            To change
-            <blockquote class="version-one viewable">{{before}}</blockquote>
-            into
-            <blockquote class="version-two viewable">{{after}}</blockquote>
-            under <em class="heading">{{heading}}</em> in <em class="filename">{{filename}}</em>. For details see the change in DocToad: <a href="{{changeurl}}">{{changeurl}}</a>.
+          {% if line.before %}
+            {% if line.after %}
+              {% blocktrans with before=line.before after=line.after %}
+                To change
+                <blockquote class="version-one viewable">{{before}}</blockquote>
+                into
+                <blockquote class="version-two viewable">{{after}}</blockquote>
+              {% endblocktrans %}
+            {% else %}
+              {% blocktrans with before=line.before after=line.after %}
+                To delete
+                <blockquote class="version-one viewable">{{before}}</blockquote>
+              {% endblocktrans %}
+            {% endif %}
+          {% else %}
+            {% blocktrans with before=line.before after=line.after %}
+              To add
+              <blockquote class="version-one viewable">{{after}}</blockquote>
+            {% endblocktrans %}
+          {% endif %}
+
+          {% if heading %}
+            {% blocktrans with heading=heading %}
+              under <em class="heading">{{heading}}</em>
+            {% endblocktrans %}
+          {% endif %}
+
+          {% blocktrans with filename=filename changeurl=site_url|add:changeurl|add:"?treeish="|add:request.GET.treeish %}          
+            in <em class="filename">{{filename}}</em>. For details see the change in DocToad: <a href="{{changeurl}}">{{changeurl}}</a>.
           {% endblocktrans %}
         </div>
       {% endfor %}
